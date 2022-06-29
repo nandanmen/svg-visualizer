@@ -123,7 +123,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: Space Mono;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   /* 1 */
   font-size: 1em;
   /* 2 */
@@ -551,67 +551,114 @@ video {
   --tw-backdrop-sepia:  ;
 }
 
-/* Chrome, Safari, Edge, Opera */
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.mb-10 {
+  margin-bottom: 2.5rem;
 }
 
-/* Firefox */
-
-input[type=number] {
-  -moz-appearance: textfield;
+.grid {
+  display: grid;
 }
 
-.prompt {
-  width: min(60rem, 100vw);
+.aspect-square {
+  aspect-ratio: 1 / 1;
 }
 
-.popup {
-  -webkit-animation: fadein 0.4s;
-          animation: fadein 0.4s;
-  -webkit-animation-fill-mode: forwards;
-          animation-fill-mode: forwards;
+.h-\[440px\] {
+  height: 440px;
 }
 
-html {
-  scroll-behavior: smooth;
+.min-h-screen {
+  min-height: 100vh;
 }
 
-@-webkit-keyframes fadein {
-  from {
-    opacity: 0;
-    transform: translateY(0px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(24px);
-  }
+.w-full {
+  width: 100%;
 }
 
-@keyframes fadein {
-  from {
-    opacity: 0;
-    transform: translateY(0px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(24px);
-  }
+.gap-16 {
+  gap: 4rem;
 }
 
-@media screen and (min-width: 768px) {
-  html {
-    font-size: 18px;
-  }
+.border {
+  border-width: 1px;
 }
 
-@media screen and (min-width: 1280px) {
-  html {
-    font-size: 20px;
-  }
+.border-b {
+  border-bottom-width: 1px;
+}
+
+.border-neutral-800 {
+  --tw-border-opacity: 1;
+  border-color: rgb(38 38 38 / var(--tw-border-opacity));
+}
+
+.bg-neutral-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(245 245 245 / var(--tw-bg-opacity));
+}
+
+.bg-inherit {
+  background-color: inherit;
+}
+
+.p-20 {
+  padding: 5rem;
+}
+
+.p-8 {
+  padding: 2rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-neutral-300 {
+  --tw-text-opacity: 1;
+  color: rgb(212 212 212 / var(--tw-text-opacity));
+}
+
+.text-neutral-900 {
+  --tw-text-opacity: 1;
+  color: rgb(23 23 23 / var(--tw-text-opacity));
+}
+
+.text-red-300 {
+  --tw-text-opacity: 1;
+  color: rgb(252 165 165 / var(--tw-text-opacity));
+}
+
+.text-yellow-300 {
+  --tw-text-opacity: 1;
+  color: rgb(253 224 71 / var(--tw-text-opacity));
+}
+
+.text-neutral-200 {
+  --tw-text-opacity: 1;
+  color: rgb(229 229 229 / var(--tw-text-opacity));
+}
+
+.text-blue-300 {
+  --tw-text-opacity: 1;
+  color: rgb(147 197 253 / var(--tw-text-opacity));
+}
+
+.antialiased {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 440px;
 }
