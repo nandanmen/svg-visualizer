@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.prompt {
+  width: min(60rem, 100vw);
+}
+
+.popup {
+  animation: fadein 0.4s;
+  animation-fill-mode: forwards;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(24px);
+  }
+}
+
+@media screen and (min-width: 768px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  html {
+    font-size: 20px;
+  }
+}
