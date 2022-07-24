@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import type { PathCommand } from "~/commands";
+
+import { tokenize } from "~/lib/tokenize";
+import { parse } from "~/lib/parser";
 
 const code = `M 20 20
 v 20
@@ -15,87 +17,11 @@ const CELL_SIZE = GRID_SIZE / CELLS_PER_ROW;
 
 const range = (num: number) => [...Array(num).keys()];
 
-// We want to turn the path code string into an array of path commands:
-const commands: PathCommand[] = [
-  {
-    type: "M",
-    source: "M 20 20",
-    args: {
-      x: 20,
-      y: 20,
-    },
-    cursor: {
-      x: 20,
-      y: 20,
-    },
-  },
-  {
-    type: "v",
-    source: "M 20 20 v 20",
-    args: {
-      dy: 20,
-    },
-    cursor: {
-      x: 20,
-      y: 40,
-    },
-  },
-  {
-    type: "m",
-    source: "m 30 0",
-    args: {
-      dx: 30,
-      dy: 0,
-    },
-    cursor: {
-      x: 50,
-      y: 40,
-    },
-  },
-  {
-    type: "v",
-    source: "M 50 40 v -20",
-    args: {
-      dy: -20,
-    },
-    cursor: {
-      x: 50,
-      y: 20,
-    },
-  },
-  {
-    type: "M",
-    source: "M 10 50",
-    args: {
-      x: 10,
-      y: 50,
-    },
-    cursor: {
-      x: 10,
-      y: 50,
-    },
-  },
-  {
-    type: "Q",
-    source: "M 10 50 Q 40 70 65 50",
-    args: {
-      controlPoint: {
-        x: 40,
-        y: 70,
-      },
-      x: 65,
-      y: 50,
-    },
-    cursor: {
-      x: 65,
-      y: 50,
-    },
-  },
-];
-
 export default function IndexPage() {
   const [path, setPath] = React.useState(code);
   const [activeIndex, setIndex] = React.useState(-1);
+
+  const commands = parse(tokenize(path));
 
   return (
     <div className="font-mono bg-neutral-100 min-h-screen main p-20 gap-16 antialiased">
@@ -137,7 +63,7 @@ export default function IndexPage() {
               })}
             </g>
             <g>
-              {commands.slice(0, activeIndex + 1).map((command, index, arr) => {
+              {commands.map((command, index, arr) => {
                 const lastCursor = arr[index - 1]?.cursor ?? { x: 0, y: 0 };
                 switch (command.type) {
                   case "M":
@@ -205,80 +131,78 @@ export default function IndexPage() {
                       pathLength: 0,
                     },
                   }}
-                  animate={index <= activeIndex ? "active" : "idle"}
+                  animate="active"
                   initial="idle"
                   transition={{ duration: 1 }}
                 />
               ))}
               <g>
-                {commands
-                  .slice(0, activeIndex + 1)
-                  .map((command, index, arr) => {
-                    const lastCursor = arr[index - 1]?.cursor ?? { x: 0, y: 0 };
-                    switch (command.type) {
-                      case "M":
-                        return (
-                          <motion.g
-                            initial={{ x: 0, y: 0 }}
-                            animate={{ x: command.args.x, y: command.args.y }}
-                            transition={{ duration: 1 }}
-                          >
-                            <MoveEndpoint x={0} y={0} />
-                          </motion.g>
-                        );
-                      case "m":
-                        return (
-                          <motion.g
-                            initial={lastCursor}
-                            animate={{
-                              x: lastCursor.x + command.args.dx,
-                              y: lastCursor.y + command.args.dy,
-                            }}
-                            transition={{ duration: 1 }}
-                          >
-                            <MoveEndpoint x={0} y={0} />
-                          </motion.g>
-                        );
-                      case "v":
-                        return (
-                          <motion.g
-                            initial={lastCursor}
-                            animate={{
-                              x: lastCursor.x,
-                              y: lastCursor.y + command.args.dy,
-                            }}
-                            transition={{ duration: 1 }}
-                          >
-                            <LineEndpoint x={0} y={0} />
-                          </motion.g>
-                        );
-                      case "Q":
-                        return (
-                          <>
-                            <circle
-                              className="text-blue-300"
-                              fill="currentColor"
-                              strokeWidth="0.5"
-                              stroke="white"
-                              cx={command.args.controlPoint.x}
-                              cy={command.args.controlPoint.y}
-                              r="1.5"
-                            />
-                            <circle
-                              className="text-blue-300"
-                              fill="currentColor"
-                              strokeWidth="0.5"
-                              stroke="white"
-                              cx={command.args.x}
-                              cy={command.args.y}
-                              r="1.5"
-                            />
-                          </>
-                        );
-                      default:
-                        return null;
-                    }
-                  })}
+                {commands.map((command, index, arr) => {
+                  const lastCursor = arr[index - 1]?.cursor ?? { x: 0, y: 0 };
+                  switch (command.type) {
+                    case "M":
+                      return (
+                        <motion.g
+                          initial={{ x: 0, y: 0 }}
+                          animate={{ x: command.args.x, y: command.args.y }}
+                          transition={{ duration: 1 }}
+                        >
+                          <MoveEndpoint x={0} y={0} />
+                        </motion.g>
+                      );
+                    case "m":
+                      return (
+                        <motion.g
+                          initial={lastCursor}
+                          animate={{
+                            x: lastCursor.x + command.args.dx,
+                            y: lastCursor.y + command.args.dy,
+                          }}
+                          transition={{ duration: 1 }}
+                        >
+                          <MoveEndpoint x={0} y={0} />
+                        </motion.g>
+                      );
+                    case "v":
+                      return (
+                        <motion.g
+                          initial={lastCursor}
+                          animate={{
+                            x: lastCursor.x,
+                            y: lastCursor.y + command.args.dy,
+                          }}
+                          transition={{ duration: 1 }}
+                        >
+                          <LineEndpoint x={0} y={0} />
+                        </motion.g>
+                      );
+                    case "Q":
+                      return (
+                        <>
+                          <circle
+                            className="text-blue-300"
+                            fill="currentColor"
+                            strokeWidth="0.5"
+                            stroke="white"
+                            cx={command.args.controlPoint.x}
+                            cy={command.args.controlPoint.y}
+                            r="1.5"
+                          />
+                          <circle
+                            className="text-blue-300"
+                            fill="currentColor"
+                            strokeWidth="0.5"
+                            stroke="white"
+                            cx={command.args.x}
+                            cy={command.args.y}
+                            r="1.5"
+                          />
+                        </>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
               </g>
             </g>
           </svg>
