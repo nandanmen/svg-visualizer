@@ -1,8 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-
-import { tokenize } from "~/lib/tokenize";
-import { parse } from "~/lib/parser";
+import { parseSVG, type Command } from "svg-path-parser";
 
 const code = `M 20 20
 v 20
@@ -17,11 +15,52 @@ const CELL_SIZE = GRID_SIZE / CELLS_PER_ROW;
 
 const range = (num: number) => [...Array(num).keys()];
 
+const getCursorAtIndex = (commands: Command[], index: number) => {
+  const cursor = { x: 0, y: 0 };
+
+  for (const command of commands.slice(0, index + 1)) {
+    switch (command.code) {
+      case "M":
+      case "Q": {
+        cursor.x = command.x;
+        cursor.y = command.y;
+        break;
+      }
+      case "m": {
+        cursor.x += command.x;
+        cursor.y += command.y;
+        break;
+      }
+      case "v": {
+        cursor.y += command.y;
+        break;
+      }
+    }
+  }
+
+  return cursor;
+};
+
+const toPath = (command: Command) => {
+  switch (command.code) {
+    case "M":
+      return `M ${command.x} ${command.y}`;
+    case "m":
+      return `m ${command.x} ${command.y}`;
+    case "Q":
+      return `Q ${command.x1} ${command.y1} ${command.x} ${command.y}`;
+    case "v":
+      return `v ${command.y}`;
+    default:
+      return "";
+  }
+};
+
 export default function IndexPage() {
   const [path, setPath] = React.useState(code);
   const [activeIndex, setIndex] = React.useState(-1);
 
-  const commands = parse(tokenize(path));
+  const commands = React.useMemo(() => parseSVG(path), [path]);
 
   return (
     <div className="font-mono bg-neutral-100 min-h-screen main p-20 gap-16 antialiased">
@@ -64,32 +103,25 @@ export default function IndexPage() {
             </g>
             <g>
               {commands.map((command, index, arr) => {
-                const lastCursor = arr[index - 1]?.cursor ?? { x: 0, y: 0 };
-                switch (command.type) {
+                const lastCursor = getCursorAtIndex(arr, index - 1);
+                switch (command.code) {
                   case "M":
-                    return (
-                      <Move
-                        x1={0}
-                        y1={0}
-                        x2={command.args.x}
-                        y2={command.args.y}
-                      />
-                    );
+                    return <Move x1={0} y1={0} x2={command.x} y2={command.y} />;
                   case "m":
                     return (
                       <Move
                         x1={lastCursor.x}
                         y1={lastCursor.y}
-                        x2={lastCursor.x + command.args.dx}
-                        y2={lastCursor.y + command.args.dy}
+                        x2={lastCursor.x + command.x}
+                        y2={lastCursor.y + command.y}
                       />
                     );
                   case "Q":
                     return (
                       <g className="text-blue-300">
                         <motion.line
-                          x1={command.args.controlPoint.x}
-                          y1={command.args.controlPoint.y}
+                          x1={command.x1}
+                          y1={command.y1}
                           x2={lastCursor.x}
                           y2={lastCursor.y}
                           strokeWidth="0.5"
@@ -99,10 +131,10 @@ export default function IndexPage() {
                           transition={{ duration: 1 }}
                         />
                         <motion.line
-                          x1={command.args.controlPoint.x}
-                          y1={command.args.controlPoint.y}
-                          x2={command.args.x}
-                          y2={command.args.y}
+                          x1={command.x1}
+                          y1={command.y1}
+                          x2={command.x}
+                          y2={command.y}
                           strokeWidth="0.5"
                           stroke="currentColor"
                           initial={{ pathLength: 0 }}
@@ -115,36 +147,41 @@ export default function IndexPage() {
                     return null;
                 }
               })}
-              {commands.map((command, index) => (
-                <motion.path
-                  key={command.source + index}
-                  d={command.source}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  className="text-neutral-900"
-                  variants={{
-                    active: {
-                      pathLength: 1,
-                    },
-                    idle: {
-                      pathLength: 0,
-                    },
-                  }}
-                  animate="active"
-                  initial="idle"
-                  transition={{ duration: 1 }}
-                />
-              ))}
+              {commands.map((command, index) => {
+                const lastCursor = getCursorAtIndex(commands, index - 1);
+                const path = toPath(command);
+                return (
+                  <motion.path
+                    key={path + index}
+                    d={`M ${lastCursor.x} ${lastCursor.y} ${path}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    className="text-neutral-900"
+                    variants={{
+                      active: {
+                        pathLength: 1,
+                      },
+                      idle: {
+                        pathLength: 0,
+                      },
+                    }}
+                    animate="active"
+                    initial="idle"
+                    transition={{ duration: 1 }}
+                  />
+                );
+              })}
               <g>
                 {commands.map((command, index, arr) => {
-                  const lastCursor = arr[index - 1]?.cursor ?? { x: 0, y: 0 };
-                  switch (command.type) {
+                  const lastCursor = getCursorAtIndex(arr, index - 1);
+                  console.log(lastCursor, command);
+                  switch (command.code) {
                     case "M":
                       return (
                         <motion.g
                           initial={{ x: 0, y: 0 }}
-                          animate={{ x: command.args.x, y: command.args.y }}
+                          animate={{ x: command.x, y: command.y }}
                           transition={{ duration: 1 }}
                         >
                           <MoveEndpoint x={0} y={0} />
@@ -155,8 +192,8 @@ export default function IndexPage() {
                         <motion.g
                           initial={lastCursor}
                           animate={{
-                            x: lastCursor.x + command.args.dx,
-                            y: lastCursor.y + command.args.dy,
+                            x: lastCursor.x + command.x,
+                            y: lastCursor.y + command.y,
                           }}
                           transition={{ duration: 1 }}
                         >
@@ -169,7 +206,7 @@ export default function IndexPage() {
                           initial={lastCursor}
                           animate={{
                             x: lastCursor.x,
-                            y: lastCursor.y + command.args.dy,
+                            y: lastCursor.y + command.y,
                           }}
                           transition={{ duration: 1 }}
                         >
@@ -184,8 +221,8 @@ export default function IndexPage() {
                             fill="currentColor"
                             strokeWidth="0.5"
                             stroke="white"
-                            cx={command.args.controlPoint.x}
-                            cy={command.args.controlPoint.y}
+                            cx={command.x1}
+                            cy={command.y1}
                             r="1.5"
                           />
                           <circle
@@ -193,8 +230,8 @@ export default function IndexPage() {
                             fill="currentColor"
                             strokeWidth="0.5"
                             stroke="white"
-                            cx={command.args.x}
-                            cy={command.args.y}
+                            cx={command.x}
+                            cy={command.y}
                             r="1.5"
                           />
                         </>
