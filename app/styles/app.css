@@ -123,7 +123,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: Space Mono;
+  font-family: Cartograph CF;
   /* 1 */
   font-size: 1em;
   /* 2 */
@@ -555,6 +555,10 @@ video {
   position: relative;
 }
 
+.m-3 {
+  margin: 0.75rem;
+}
+
 .mb-10 {
   margin-bottom: 2.5rem;
 }
@@ -615,7 +619,7 @@ video {
 }
 
 .font-mono {
-  font-family: Space Mono;
+  font-family: Cartograph CF;
 }
 
 .text-lg {
@@ -628,14 +632,14 @@ video {
   color: rgb(212 212 212 / var(--tw-text-opacity));
 }
 
-.text-blue-300 {
-  --tw-text-opacity: 1;
-  color: rgb(147 197 253 / var(--tw-text-opacity));
-}
-
 .text-neutral-900 {
   --tw-text-opacity: 1;
   color: rgb(23 23 23 / var(--tw-text-opacity));
+}
+
+.text-blue-300 {
+  --tw-text-opacity: 1;
+  color: rgb(147 197 253 / var(--tw-text-opacity));
 }
 
 .text-yellow-300 {
@@ -651,6 +655,16 @@ video {
 .text-neutral-100 {
   --tw-text-opacity: 1;
   color: rgb(245 245 245 / var(--tw-text-opacity));
+}
+
+.text-neutral-400 {
+  --tw-text-opacity: 1;
+  color: rgb(163 163 163 / var(--tw-text-opacity));
+}
+
+.text-neutral-200 {
+  --tw-text-opacity: 1;
+  color: rgb(229 229 229 / var(--tw-text-opacity));
 }
 
 .antialiased {

@@ -6,7 +6,7 @@ module.exports = {
       fontFamily: {
         title: ["Arima Madurai"],
         sans: ["Nunito"],
-        mono: ["Space Mono"],
+        mono: ["Cartograph CF"],
       },
     },
   },
